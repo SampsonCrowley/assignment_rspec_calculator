@@ -2,6 +2,8 @@ require_relative 'spec_helper'
 require_relative '../lib/calculator'
 
 describe "Calculator" do 
+  let(:calculator){ Calculator.new }
+  let(:calculator_str){ Calculator.new(true) }
 
   describe "#initialize" do 
     it "should start with empty memory" do 
@@ -9,14 +11,11 @@ describe "Calculator" do
     end
 
     it "should take an argument for stringifying results" do 
-      calculator = Calculator.new(true)
-      expect(calculator.instance_variable_get(:@stringify)).to be true
+      expect(calculator_str.instance_variable_get(:@stringify)).to be true
     end
   end
 
   context "operations" do 
-
-    let(:calculator){Calculator.new}
     
     describe "#add" do 
       it "should add two numbers" do 
@@ -118,6 +117,59 @@ describe "Calculator" do
         expect(calculator.pow(3,3.0)).to eq(27.0)
         expect(calculator.pow(1.78184, 1.123123)).to be_within(0.00001).of(1.78184 ** 1.123123)
       end
+
+      it "should return one when to the power of zero" do
+        expect(calculator.pow(rand(6), 0)).to eq(1)
+        expect(calculator.pow(rand(10), 0)).to eq(1)
+        expect(calculator.pow(rand(15), 0)).to eq(1)        
+      end
+
+    end
+
+    describe "#sqrt" do
+
+      it "should correctly return the square root of one number" do
+        expect(calculator.sqrt(25)).to be_within(0.01).of(5)
+        expect(calculator.sqrt(15)).to be_within(0.01).of(15 ** 0.5)
+        expect(calculator.sqrt(234.234)).to be_within(0.01).of(234.234 ** 0.5)
+      end
+
+      it "should raise an Argument Error if passed a negative number" do
+        expect{calculator.sqrt(-6)}.to raise_error(ArgumentError)
+        expect{calculator.sqrt(-50)}.to raise_error(ArgumentError)
+        expect{calculator.sqrt(-1.54346)}.to raise_error(ArgumentError)
+      end
+
+    end
+  end
+  context "UI" do
+    
+    describe "memory instance" do
+      it "should returns memory" do
+        calculator.memory = 1
+        expect(calculator.memory).to eq(1)
+      end
+
+      it "should set memory to nil" do
+        calculator.memory = 1
+        calculator.memory
+        expect(calculator.instance_variable_get(:@memory)).to be_nil
+      end
+
+    end
+
+    describe "#output" do
+
+      it "should return a string if stringify is true" do
+        expect(calculator_str.output(1)).to be_a(String)
+      end
+
+      it "should return a FixNum if stringify is false" do
+        expect(calculator.output(1)).to be_a(Numeric)
+        expect(calculator.output(1.1)).to be_a(Numeric)
+        expect(calculator.output(51.2)).to be_a(Numeric)
+      end
+    
     end
   end
 end
